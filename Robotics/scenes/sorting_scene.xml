@@ -1,0 +1,199 @@
+<mujoco model="ur5_sorting_scene">
+    <compiler angle="radian" balanceinertia="true"/>
+
+    <option timestep="0.002" gravity="0 0 -9.81" cone="elliptic" impratio="5" integrator="implicitfast"/>
+
+    <default>
+        <light castshadow="false" diffuse="1 1 1" />
+        <camera fovy="60" />
+        <joint damping="1.0" armature="0.1" frictionloss="0.05"/>
+        <geom contype="0" conaffinity="0" friction="1 0.03 0.0005" solref="0.002 1" solimp="0.9 0.95 0.001"/>
+    </default>
+
+    <asset>
+        <material name="tile" rgba="0.55 0.55 0.55 1"/>
+        <material name="silver" rgba="0.82 0.82 0.82 1" specular="1" shininess="0.5"/>
+        <material name="grey" rgba="0.5 0.5 0.5 1" specular="1" shininess="0.5"/>
+        <material name="blue" rgba="0.678 0.847 0.902 1" specular="1" shininess="0.5"/>
+        <material name="gripper_mat" rgba="0.25 0.25 0.28 1" specular="0.6" shininess="0.6"/>
+    </asset>
+
+    <!-- Label text, drawn in the viewer by MuJoCoEnv over each bin and each product. -->
+    <custom>
+        <text name="label_bin_a" data="BIN A - HEAVY"/>
+        <text name="label_bin_b" data="BIN B - FRAGILE"/>
+        <text name="label_bin_c" data="BIN C - STANDARD"/>
+        <text name="label_bin_d" data="BIN D - RECYCLE"/>
+        <text name="label_item_0" data="ITM-017  hardware  340g"/>
+        <text name="label_item_1" data="ITM-023  fragile  120g"/>
+        <text name="label_item_2" data="ITM-055  hardware  210g"/>
+        <text name="label_item_3" data="ITM-031  unknown  890g  used"/>
+        <text name="label_item_4" data="ITM-042  electronic  45g  labelled-fragile"/>
+    </custom>
+
+    <worldbody>
+        <geom name="floor" pos="0 0 -0.001" size="2 2 0.05" type="plane" material="tile" contype="1" conaffinity="1" friction="1 0.03 0.0005"/>
+
+        <body name="base_link" pos="0 0 0">
+            <geom name="link0" type="cylinder" size="0.075 0.03" pos="0 0 0.03" material="grey" contype="16" conaffinity="16"/>
+
+            <body name="link1" pos="0 0 0.0213" gravcomp="1">
+                <joint name="joint1" axis="0 0 1" pos="0 0 0" range="-3.14 3.14"/>
+                <inertial pos="0 -0.02561 0.00193" mass="3.761" diaginertia="0.1 0.1 0.1"/>
+                <geom name="link1" type="cylinder" size="0.06 0.06" pos="0 0 0.06" material="blue" contype="32" conaffinity="32"/>
+
+                <body name="link2" pos="-0.0663 0 0.0679" gravcomp="1">
+                    <joint name="joint2" axis="-1 0 0" pos="0 0 0" range="-3.14 3.14"/>
+                    <inertial pos="-0.04706 0 0.2125" mass="8.058" diaginertia="0.1 0.1 0.1"/>
+                    <geom name="link2" type="capsule" size="0.055" fromto="0 0 0 -0.008 0 0.425" material="silver" contype="32" conaffinity="32"/>
+
+                    <body name="link3" pos="-0.008 0 0.425" gravcomp="1">
+                        <joint name="joint3" axis="1 0 0" pos="0 0 0" range="-3.14 3.14"/>
+                        <inertial pos="0.0478 0 0.15" mass="2.846" diaginertia="0.1 0.1 0.1"/>
+                        <geom name="link3" type="capsule" size="0.045" fromto="0 0 0 0.0173 0 0.3922" material="silver" contype="32" conaffinity="32"/>
+
+                        <body name="link4" pos="0.0173 0 0.3922" gravcomp="1">
+                            <joint name="joint4" axis="-1 0 0" pos="0 0 0" range="-3.14 3.14"/>
+                            <inertial pos="-0.05796 -0.0018 0" mass="1.37" diaginertia="0.1 0.1 0.1"/>
+                            <geom name="link4" type="capsule" size="0.035" fromto="0 0 0 -0.05325 0 0.04165" material="blue" contype="32" conaffinity="32"/>
+
+                            <body name="link5" pos="-0.05325 0 0.04165" gravcomp="1">
+                                <joint name="joint5" axis="0 0 1" pos="0 0 0" range="-3.14 3.14"/>
+                                <inertial pos="0.0018 0 0.01634" mass="1.3" diaginertia="0.1 0.1 0.1"/>
+                                <geom name="link5" type="capsule" size="0.032" fromto="0 0 0 -0.04165 0 0.05305" material="grey" contype="32" conaffinity="32"/>
+
+                                <body name="link6" pos="-0.04165 0 0.05305" gravcomp="1">
+                                    <joint name="joint6" axis="-1 0 0" pos="0 0 0" range="-3.14 3.14"/>
+                                    <inertial pos="-0.038841 0 0" mass="0.365" diaginertia="0.1 0.1 0.1"/>
+                                    <geom name="link6" type="capsule" size="0.028" fromto="0 0 0 -0.04 0 0" material="silver" contype="32" conaffinity="32"/>
+
+                                    <!-- ============ GRIPPER: ee site sits between the fingertips ============ -->
+                                    <body name="EE" pos="-0.04 0 0">
+                                        <!-- grasp centre: RobotArm drives this straight onto the product centre -->
+                                        <site name="ee" pos="0 0 0.085" rgba="0 1 0 1" size="0.010"/>
+
+                                        <body name="gripper_base" pos="0 0 0.03">
+                                            <geom type="box" size="0.022 0.055 0.025" material="gripper_mat" contype="32" conaffinity="32"/>
+
+                                            <!-- fingers: inner face at y = 0.038 + q, so q=0 is open (76mm) and
+                                                 q=-0.019 closes onto a 40mm product with ~1mm of squeeze -->
+                                            <body name="finger_left" pos="0 0.05 0.055">
+                                                <joint name="grip_left_jnt" type="slide" axis="0 1 0" range="-0.05 0.02" damping="5"/>
+                                                <geom type="box" size="0.012 0.012 0.03" rgba="0.12 0.12 0.14 1" contype="4" conaffinity="3"
+                                                      friction="2.0 0.02 0.0003" solimp="0.95 0.99 0.001"/>
+                                            </body>
+
+                                            <body name="finger_right" pos="0 -0.05 0.055">
+                                                <joint name="grip_right_jnt" type="slide" axis="0 1 0" range="-0.02 0.05" damping="5"/>
+                                                <geom type="box" size="0.012 0.012 0.03" rgba="0.12 0.12 0.14 1" contype="4" conaffinity="3"
+                                                      friction="2.0 0.02 0.0003" solimp="0.95 0.99 0.001"/>
+                                            </body>
+                                        </body>
+                                    </body>
+                                </body>
+                            </body>
+                        </body>
+                    </body>
+                </body>
+            </body>
+        </body>
+
+
+        <!-- ==================== BINS: spread along X, open-top containers ==================== -->
+        <!-- bin_a yellow -->
+        <body name="bin_a_body" pos="-0.35 0.55 0">
+            <geom type="box" size="0.08 0.08 0.005" pos="0 0 0.005" rgba="1 1 0 1" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0  0.075 0.05" rgba="1 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0 -0.075 0.05" rgba="1 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos=" 0.075 0 0.05" rgba="1 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos="-0.075 0 0.05" rgba="1 1 0 0.5" contype="1" conaffinity="2"/>
+            <site name="bin_a" pos="0 0 0.05" rgba="1 1 0 1" size="0.015"/>
+        </body>
+        <!-- bin_b green -->
+        <body name="bin_b_body" pos="-0.15 0.55 0">
+            <geom type="box" size="0.08 0.08 0.005" pos="0 0 0.005" rgba="0 1 0 1" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0  0.075 0.05" rgba="0 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0 -0.075 0.05" rgba="0 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos=" 0.075 0 0.05" rgba="0 1 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos="-0.075 0 0.05" rgba="0 1 0 0.5" contype="1" conaffinity="2"/>
+            <site name="bin_b" pos="0 0 0.05" rgba="0 1 0 1" size="0.015"/>
+        </body>
+        <!-- bin_c blue -->
+        <body name="bin_c_body" pos="0.05 0.55 0">
+            <geom type="box" size="0.08 0.08 0.005" pos="0 0 0.005" rgba="0 0 1 1" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0  0.075 0.05" rgba="0 0 1 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0 -0.075 0.05" rgba="0 0 1 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos=" 0.075 0 0.05" rgba="0 0 1 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos="-0.075 0 0.05" rgba="0 0 1 0.5" contype="1" conaffinity="2"/>
+            <site name="bin_c" pos="0 0 0.05" rgba="0 0 1 1" size="0.015"/>
+        </body>
+        <!-- bin_d red -->
+        <body name="bin_d_body" pos="0.25 0.55 0">
+            <geom type="box" size="0.08 0.08 0.005" pos="0 0 0.005" rgba="1 0 0 1" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0  0.075 0.05" rgba="1 0 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.08 0.005 0.05" pos="0 -0.075 0.05" rgba="1 0 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos=" 0.075 0 0.05" rgba="1 0 0 0.5" contype="1" conaffinity="2"/>
+            <geom type="box" size="0.005 0.08 0.05" pos="-0.075 0 0.05" rgba="1 0 0 0.5" contype="1" conaffinity="2"/>
+            <site name="bin_d" pos="0 0 0.05" rgba="1 0 0 1" size="0.015"/>
+        </body>
+
+        <!-- ==================== TRAY: product staging area ==================== -->
+        <body name="tray_body" pos="0.4 0.0 0.025">
+            <geom type="box" size="0.15 0.25 0.025" rgba="0.4 0.4 0.4 1" contype="1" conaffinity="2"/>
+            <site name="tray_center" pos="0 0 0.025" rgba="1 1 1 1" size="0.015"/>
+        </body>
+
+        <!-- ============ PRODUCTS: 40mm boxes, one colour each, mass = the real weight ============
+             Laid out in a row so the arm never reaches across one product to get another.
+             Colour is product identity, not bin identity - the floating label says where it goes. -->
+        <body name="item_0" pos="0.4 0.20 0.075">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.025" rgba="0.60 0.62 0.68 1" mass="0.340" contype="2" conaffinity="5" friction="1.5 0.02 0.0002"/>
+        </body>
+        <body name="item_1" pos="0.4 0.10 0.075">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.025" rgba="0.20 0.85 0.90 1" mass="0.120" contype="2" conaffinity="5" friction="1.5 0.02 0.0002"/>
+        </body>
+        <body name="item_2" pos="0.4 0.00 0.075">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.025" rgba="0.95 0.55 0.10 1" mass="0.210" contype="2" conaffinity="5" friction="1.5 0.02 0.0002"/>
+        </body>
+        <body name="item_3" pos="0.4 -0.10 0.075">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.025" rgba="0.65 0.35 0.85 1" mass="0.890" contype="2" conaffinity="5" friction="1.5 0.02 0.0002"/>
+        </body>
+        <body name="item_4" pos="0.4 -0.20 0.075">
+            <freejoint/>
+            <geom type="box" size="0.02 0.02 0.025" rgba="0.30 0.80 0.35 1" mass="0.045" contype="2" conaffinity="5" friction="1.5 0.02 0.0002"/>
+        </body>
+
+        <light directional="true" pos="-0.5 0.5 3" dir="0 0 -1" />
+        <light directional="true" pos="0.5 0.0 3" dir="0 0 -1" />
+
+        <camera name="overview" pos="1.1 -1.3 1.15" mode="targetbody" target="base_link"/>
+    </worldbody>
+
+    <actuator>
+        <!-- velocity actuators: RobotArm._move_to sends dq (rad/s) as ctrl. joint1-4 driven by Jacobian-transpose IK. -->
+        <velocity name="joint1" joint="joint1" ctrlrange="-3 3" kv="150"/>
+        <velocity name="joint2" joint="joint2" ctrlrange="-3 3" kv="250"/>
+        <velocity name="joint3" joint="joint3" ctrlrange="-3 3" kv="150"/>
+        <velocity name="joint4" joint="joint4" ctrlrange="-3 3" kv="80"/>
+        <velocity name="joint5" joint="joint5" ctrlrange="-3 3" kv="40"/>
+        <velocity name="joint6" joint="joint6" ctrlrange="-3 3" kv="20"/>
+        <!-- gripper: RobotArm ramps ctrl between GRIP_OPEN (0.0) and GRIP_CLOSED (-0.024). gear mirrors right finger. -->
+        <position name="grip_l" joint="grip_left_jnt" gear="1 0 0 0 0 0" ctrlrange="-0.05 0.02" kp="800" kv="20"/>
+        <position name="grip_r" joint="grip_right_jnt" gear="-1 0 0 0 0 0" ctrlrange="-0.05 0.02" kp="800" kv="20"/>
+    </actuator>
+
+    <keyframe>
+        <key name="home" qpos="0 -0.1 0 0 0 0 0 0
+                               0.4  0.20 0.075 1 0 0 0
+                               0.4  0.10 0.075 1 0 0 0
+                               0.4  0.00 0.075 1 0 0 0
+                               0.4 -0.10 0.075 1 0 0 0
+                               0.4 -0.20 0.075 1 0 0 0"
+             ctrl="0 0 0 0 0 0 0 0"/>
+    </keyframe>
+
+</mujoco>
